@@ -90,3 +90,9 @@ extern "C"
 const char *Algorithm_getDefaultName(AlgorithmPtr ptr) {
     return ptr->getDefaultName().c_str();
 }
+
+extern "C"
+void CvPtr_dtor(struct CvPtrPtr ptr)
+{
+    delete static_cast<cv::Ptr<void> *>(ptr.ptr);
+}

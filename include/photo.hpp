@@ -2,63 +2,74 @@
 #include <Classes.hpp>
 #include <opencv2/photo.hpp>
 
-extern "C" struct TensorWrapper inpaint(struct TensorWrapper src, struct TensorWrapper inpaintMask,
+// photo_EXPORTS is defined by CMake(add_library)
+#if defined (_WIN32) && defined (_MSC_VER)
+  #if defined(photo_EXPORTS)
+    #define  photo_API __declspec(dllexport)
+  #else
+    #define  photo_API __declspec(dllimport)
+  #endif /* photo_EXPORTS */
+#else /* defined (_WIN32) */
+ #define photo_API
+#endif
+
+extern "C" photo_API struct TensorWrapper inpaint(struct TensorWrapper src, struct TensorWrapper inpaintMask,
                                     struct TensorWrapper dst, double inpaintRadius, int flags);
 
-extern "C" struct TensorWrapper fastNlMeansDenoising1(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoising1(struct TensorWrapper src, struct TensorWrapper dst,
                                     float h, int templateWindowSize,
                                     int searchWindowSize);
 
-extern "C" struct TensorWrapper fastNlMeansDenoising2(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoising2(struct TensorWrapper src, struct TensorWrapper dst,
                                     struct TensorWrapper h, int templateWindowSize,
                                     int searchWindowSize, int normType);
 
-extern "C" struct TensorWrapper fastNlMeansDenoisingColored(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoisingColored(struct TensorWrapper src, struct TensorWrapper dst,
                                     float h, float hColor, int templateWindowSize, int searchWindowSize);
 
-extern "C" struct TensorWrapper fastNlMeansDenoisingMulti1(struct TensorArray srcImgs, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoisingMulti1(struct TensorArray srcImgs, struct TensorWrapper dst,
                                     int imgToDenoiseIndex, int temporalWindowSize, float h,
                                     int templateWindowSize, int searchWindowSize);
 
-extern "C" struct TensorWrapper fastNlMeansDenoisingMulti2(struct TensorArray srcImgs, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoisingMulti2(struct TensorArray srcImgs, struct TensorWrapper dst,
                                     int imgToDenoiseIndex, int temporalWindowSize, struct TensorWrapper h,
                                     int templateWindowSize, int searchWindowSize, int normType);
 
-extern "C" struct TensorWrapper fastNlMeansDenoisingColoredMulti(struct TensorArray srcImgs, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper fastNlMeansDenoisingColoredMulti(struct TensorArray srcImgs, struct TensorWrapper dst,
                                     int imgToDenoiseIndex, int temporalWindowSize, float h,
                                     float hColor, int templateWindowSize, int searchWindowSize);
 
-extern "C" struct TensorWrapper denoise_TVL1(struct TensorArray observations, struct TensorWrapper result,
+extern "C" photo_API struct TensorWrapper denoise_TVL1(struct TensorArray observations, struct TensorWrapper result,
                                     double lambda, int niters);
 
-extern "C" struct TensorArray decolor(struct TensorWrapper src, struct TensorWrapper grayscale,
+extern "C" photo_API struct TensorArray decolor(struct TensorWrapper src, struct TensorWrapper grayscale,
                                     struct TensorWrapper color_boost);
 
-extern "C" struct TensorWrapper seamlessClone(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper seamlessClone(struct TensorWrapper src, struct TensorWrapper dst,
                                     struct TensorWrapper mask, struct PointWrapper p,
                                     struct TensorWrapper blend, int flags);
 
-extern "C" struct TensorWrapper colorChange(struct TensorWrapper src, struct TensorWrapper mask,
+extern "C" photo_API struct TensorWrapper colorChange(struct TensorWrapper src, struct TensorWrapper mask,
                                     struct TensorWrapper dst, float red_mul,
                                     float green_mul, float blue_mul);
 
-extern "C" struct TensorWrapper illuminationChange(struct TensorWrapper src, struct TensorWrapper mask,
+extern "C" photo_API struct TensorWrapper illuminationChange(struct TensorWrapper src, struct TensorWrapper mask,
                                     struct TensorWrapper dst, float alpha, float beta);
 
-extern "C" struct TensorWrapper textureFlattening(struct TensorWrapper src, struct TensorWrapper mask,
+extern "C" photo_API struct TensorWrapper textureFlattening(struct TensorWrapper src, struct TensorWrapper mask,
                                     struct TensorWrapper dst, float low_threshold, float high_threshold,
                                     int kernel_size);
 
-extern "C" struct TensorWrapper edgePreservingFilter(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper edgePreservingFilter(struct TensorWrapper src, struct TensorWrapper dst,
                                     int flags, float sigma_s, float sigma_r);
 
-extern "C" struct TensorWrapper detailEnhance(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper detailEnhance(struct TensorWrapper src, struct TensorWrapper dst,
                                     float sigma_s, float sigma_r);
 
-extern "C" struct TensorArray pencilSketch(struct TensorWrapper src, struct TensorWrapper dst1,
+extern "C" photo_API struct TensorArray pencilSketch(struct TensorWrapper src, struct TensorWrapper dst1,
                                     struct TensorWrapper dst2, float sigma_s, float sigma_r, float shade_factor);
 
-extern "C" struct TensorWrapper stylization(struct TensorWrapper src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper stylization(struct TensorWrapper src, struct TensorWrapper dst,
                                     float sigma_s, float sigma_r);
 
 /****************** Classes ******************/
@@ -72,9 +83,9 @@ struct TonemapPtr {
     inline TonemapPtr(cv::Tonemap *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TonemapPtr Tonemap_ctor(float gamma);
+extern "C" photo_API struct TonemapPtr Tonemap_ctor(float gamma);
 
-extern "C" struct TensorWrapper Tonemap_process(struct TonemapPtr ptr, struct TensorArray src, struct TensorWrapper dst);
+extern "C" photo_API struct TensorWrapper Tonemap_process(struct TonemapPtr ptr, struct TensorArray src, struct TensorWrapper dst);
 
 extern "C" float Tonemap_getGamma(struct TonemapPtr ptr);
 
@@ -89,7 +100,7 @@ struct TonemapDragoPtr {
     inline TonemapDragoPtr(cv::TonemapDrago *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TonemapDragoPtr TonemapDrago_ctor(float gamma, float saturation, float bias);
+extern "C" photo_API struct TonemapDragoPtr TonemapDrago_ctor(float gamma, float saturation, float bias);
 
 extern "C" float TonemapDrago_getSaturation(struct TonemapDragoPtr ptr);
 
@@ -107,7 +118,7 @@ struct TonemapDurandPtr {
     inline TonemapDurandPtr(cv::TonemapDurand *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TonemapDurandPtr TonemapDurand_ctor(float gamma, float contrast, float saturation, float sigma_space, float sigma_color);
+extern "C" photo_API struct TonemapDurandPtr TonemapDurand_ctor(float gamma, float contrast, float saturation, float sigma_space, float sigma_color);
 
 extern "C" float TonemapDurand_getSaturation(struct TonemapDurandPtr ptr);
 
@@ -133,7 +144,7 @@ struct TonemapReinhardPtr {
     inline TonemapReinhardPtr(cv::TonemapReinhard *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TonemapReinhardPtr TonemapReinhard_ctor(float gamma, float intensity, float light_adapt, float color_adapt);
+extern "C" photo_API struct TonemapReinhardPtr TonemapReinhard_ctor(float gamma, float intensity, float light_adapt, float color_adapt);
 
 extern "C" float TonemapReinhard_getIntensity(struct TonemapReinhardPtr ptr);
 
@@ -155,7 +166,7 @@ struct TonemapMantiukPtr {
     inline TonemapMantiukPtr(cv::TonemapMantiuk *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TonemapMantiukPtr TonemapMantiuk_ctor(float gamma, float scale, float saturation);
+extern "C" photo_API struct TonemapMantiukPtr TonemapMantiuk_ctor(float gamma, float scale, float saturation);
 
 extern "C" float TonemapMantiuk_getScale(struct TonemapMantiukPtr ptr);
 
@@ -173,7 +184,7 @@ struct AlignExposuresPtr {
     inline AlignExposuresPtr(cv::AlignExposures *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TensorArray AlignExposures_process(struct AlignExposuresPtr ptr, struct TensorArray src, struct TensorArray dst,
+extern "C" photo_API struct TensorArray AlignExposures_process(struct AlignExposuresPtr ptr, struct TensorArray src, struct TensorArray dst,
                         struct TensorWrapper times, struct TensorWrapper response);
 
 // AlignMTB
@@ -184,16 +195,16 @@ struct AlignMTBPtr {
     inline AlignMTBPtr(cv::AlignMTB *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct AlignMTBPtr AlignMTB_ctor(int max_bits, int exclude_range, bool cut);
+extern "C" photo_API struct AlignMTBPtr AlignMTB_ctor(int max_bits, int exclude_range, bool cut);
 
-extern "C" struct TensorArray AlignMTB_process1(struct AlignMTBPtr ptr, struct TensorArray src, struct TensorArray dst,
+extern "C" photo_API struct TensorArray AlignMTB_process1(struct AlignMTBPtr ptr, struct TensorArray src, struct TensorArray dst,
                             struct TensorWrapper times, struct TensorWrapper response);
 
-extern "C" struct TensorArray AlignMTB_process2(struct AlignMTBPtr ptr, struct TensorArray src, struct TensorArray dst);
+extern "C" photo_API struct TensorArray AlignMTB_process2(struct AlignMTBPtr ptr, struct TensorArray src, struct TensorArray dst);
 
-extern "C" struct PointWrapper AlignMTB_calculateShift(struct AlignMTBPtr ptr, struct TensorWrapper img0, struct TensorWrapper img1);
+extern "C" photo_API struct PointWrapper AlignMTB_calculateShift(struct AlignMTBPtr ptr, struct TensorWrapper img0, struct TensorWrapper img1);
 
-extern "C" struct TensorWrapper AlignMTB_shiftMat(struct AlignMTBPtr ptr, struct TensorWrapper src,
+extern "C" photo_API struct TensorWrapper AlignMTB_shiftMat(struct AlignMTBPtr ptr, struct TensorWrapper src,
                             struct TensorWrapper dst, struct PointWrapper shift);
 
 extern "C" void AlignMTB_computeBitmaps(struct AlignMTBPtr ptr, struct TensorWrapper img,
@@ -219,7 +230,7 @@ struct CalibrateCRFPtr {
     inline CalibrateCRFPtr(cv::CalibrateCRF *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TensorWrapper CalibrateCRF_process(struct CalibrateCRFPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper CalibrateCRF_process(struct CalibrateCRFPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times);
 
 // CalibrateDebevec
@@ -230,7 +241,7 @@ struct CalibrateDebevecPtr {
     inline CalibrateDebevecPtr(cv::CalibrateDebevec *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct CalibrateDebevecPtr CalibrateDebevec_ctor(int samples, float lambda, bool random);
+extern "C" photo_API struct CalibrateDebevecPtr CalibrateDebevec_ctor(int samples, float lambda, bool random);
 
 extern "C" float CalibrateDebevec_getLambda(struct CalibrateDebevecPtr ptr);
 
@@ -252,7 +263,7 @@ struct CalibrateRobertsonPtr {
     inline CalibrateRobertsonPtr(cv::CalibrateRobertson *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct CalibrateRobertsonPtr CalibrateRobertson_ctor(int max_iter, float threshold);
+extern "C" photo_API struct CalibrateRobertsonPtr CalibrateRobertson_ctor(int max_iter, float threshold);
 
 extern "C" int CalibrateRobertson_getMaxIter(struct CalibrateRobertsonPtr ptr);
 
@@ -262,7 +273,7 @@ extern "C" float CalibrateRobertson_getThreshold(struct CalibrateRobertsonPtr pt
 
 extern "C" void CalibrateRobertson_setThreshold(struct CalibrateRobertsonPtr ptr, float threshold);
 
-extern "C" struct TensorWrapper CalibrateRobertson_getRadiance(struct CalibrateRobertsonPtr ptr);
+extern "C" photo_API struct TensorWrapper CalibrateRobertson_getRadiance(struct CalibrateRobertsonPtr ptr);
 
 // MergeExposures
 
@@ -272,7 +283,7 @@ struct MergeExposuresPtr {
     inline MergeExposuresPtr(cv::MergeExposures *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct TensorWrapper MergeExposures_process(struct MergeExposuresPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper MergeExposures_process(struct MergeExposuresPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times, struct TensorWrapper response);
 
 // MergeDebevec
@@ -283,12 +294,12 @@ struct MergeDebevecPtr {
     inline MergeDebevecPtr(cv::MergeDebevec *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct MergeDebevecPtr MergeDebevec_ctor();
+extern "C" photo_API struct MergeDebevecPtr MergeDebevec_ctor();
 
-extern "C" struct TensorWrapper MergeDebevec_process1(struct MergeDebevecPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper MergeDebevec_process1(struct MergeDebevecPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times, TensorWrapper response);
 
-extern "C" struct TensorWrapper MergeDebevec_process2(struct MergeDebevecPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper MergeDebevec_process2(struct MergeDebevecPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times);
 
 // MergeMertens
@@ -299,12 +310,12 @@ struct MergeMertensPtr {
     inline MergeMertensPtr(cv::MergeMertens *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct MergeMertensPtr MergeMertens_ctor(float contrast_weight, float saturation_weight, float exposure_weight);
+extern "C" photo_API struct MergeMertensPtr MergeMertens_ctor(float contrast_weight, float saturation_weight, float exposure_weight);
 
-extern "C" struct TensorWrapper MergeMertens_process1(struct MergeMertensPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper MergeMertens_process1(struct MergeMertensPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times, struct TensorWrapper response);
 
-extern "C" struct TensorWrapper MergeMertens_process2(struct MergeMertensPtr ptr, struct TensorArray src, struct TensorWrapper dst);
+extern "C" photo_API struct TensorWrapper MergeMertens_process2(struct MergeMertensPtr ptr, struct TensorArray src, struct TensorWrapper dst);
 
 extern "C" float MergeMertens_getContrastWeight(struct MergeMertensPtr ptr);
 
@@ -326,10 +337,10 @@ struct MergeRobertsonPtr {
     inline MergeRobertsonPtr(cv::MergeRobertson *ptr) { this->ptr = ptr; }
 };
 
-extern "C" struct MergeRobertsonPtr MergeRobertson_ctor();
+extern "C" photo_API struct MergeRobertsonPtr MergeRobertson_ctor();
 
-extern "C" struct TensorWrapper MergeRobertson_process1(struct MergeRobertsonPtr ptr, struct TensorArray src, struct TensorWrapper dst,
+extern "C" photo_API struct TensorWrapper MergeRobertson_process1(struct MergeRobertsonPtr ptr, struct TensorArray src, struct TensorWrapper dst,
                             struct TensorWrapper times, struct TensorWrapper response);
 
-extern "C" struct TensorWrapper MergeRobertson_process2(struct MergeRobertsonPtr ptr, struct TensorArray src,
+extern "C" photo_API struct TensorWrapper MergeRobertson_process2(struct MergeRobertsonPtr ptr, struct TensorArray src,
                             struct TensorWrapper dst, struct TensorWrapper times);

@@ -8,8 +8,6 @@ IF (DEFINED ENV{WITH_CUDA})
     SET(WITH_CUDA $ENV{WITH_CUDA})
 ENDIF()
 
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-
 SET(OPENCV_MODULES_TO_WRAP
         core imgcodecs highgui features2d flann imgproc ml optflow photo superres videoio video
         objdetect calib3d ximgproc stitching xphoto)
@@ -57,6 +55,10 @@ IF (CMAKE_VERSION VERSION_LESS 3.1)
     SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
 ENDIF()
 
+IF(MSVC)
+  LIST(APPEND CMAKE_CXX_FLAGS " -Xcompiler /wd4819")
+ENDIF()
+
 FILE(GLOB luasrc *.lua cv/*.lua)
 SET(luasrc ${luasrc})
 ADD_TORCH_PACKAGE(cv "" "${luasrc}" "cv")
@@ -81,6 +83,12 @@ ENDIF()
 
 SET(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+# For Linux
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+# For Windows
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib_import")
 
 ADD_LIBRARY(Common SHARED "${SOURCE_DIR}/Common.cpp")
 TARGET_LINK_LIBRARIES(Common TH ${OpenCV_LIBS})

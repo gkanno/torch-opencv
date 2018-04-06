@@ -84,7 +84,7 @@ TensorWrapper::TensorWrapper(GpuMatT && mat, THCState *state) {
 
 cuda::GpuMat TensorWrapper::toGpuMat(int depth) {
 
-    if (this->tensorPtr == nullptr or this->tensorPtr->nDimension == 0) {
+    if (this->tensorPtr == nullptr || this->tensorPtr->nDimension == 0) {
         return cuda::GpuMat();
     }
 

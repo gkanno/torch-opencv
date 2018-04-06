@@ -23,11 +23,16 @@ static long getAllocSize(void *ptr) {
 #endif
 }
 
-static void *OpenCVMalloc(void */*allocatorContext*/, ptrdiff_t size) {
+
+int getIntMax() { return INT_MAX; }
+float getFloatMax() { return FLT_MAX; }
+double getDblEpsilon() { return DBL_EPSILON; }
+
+static void *OpenCVMalloc(void * /*allocatorContext*/, ptrdiff_t size) {
     return cv::fastMalloc(static_cast<size_t>(size));
 }
 
-static void *OpenCVRealloc(void */*allocatorContext*/, void *ptr, ptrdiff_t size) {
+static void *OpenCVRealloc(void * /*allocatorContext*/, void *ptr, ptrdiff_t size) {
     // https://github.com/Itseez/opencv/blob/master/modules/core/src/alloc.cpp#L62
     void *oldMem = ((unsigned char**)ptr)[-1];
     void *newMem = cv::fastMalloc(static_cast<size_t>(size));
@@ -35,7 +40,7 @@ static void *OpenCVRealloc(void */*allocatorContext*/, void *ptr, ptrdiff_t size
     return newMem;
 }
 
-static void OpenCVFree(void */*allocatorContext*/, void *ptr) {
+static void OpenCVFree(void * /*allocatorContext*/, void *ptr) {
     cv::fastFree(ptr);
 }
 
@@ -162,7 +167,7 @@ TensorWrapper::TensorWrapper(MatT && mat) {
 
 TensorWrapper::operator cv::Mat() {
 
-    if (this->tensorPtr == nullptr or this->tensorPtr->nDimension == 0) {
+    if (this->tensorPtr == nullptr || this->tensorPtr->nDimension == 0) {
         return cv::Mat();
     }
 

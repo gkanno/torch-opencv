@@ -364,13 +364,13 @@ struct TensorArray convertMaps(
         struct TensorWrapper dstmap1, struct TensorWrapper dstmap2,
         int dstmap1type, bool nninterpolation)
 {
-    if (dstmap1.isNull() and dstmap2.isNull()) {
+    if (dstmap1.isNull() && dstmap2.isNull()) {
         // output to retval
         std::vector<MatT> retval(2);
         cv::convertMaps(map1.toMat(), map2.toMat(), retval[0], retval[1], dstmap1type, nninterpolation);
         return TensorArray(retval);
     }
-    if (!dstmap1.isNull() and !dstmap2.isNull()) {
+    if (!dstmap1.isNull() && !dstmap2.isNull()) {
         // try to output to the given Tensors
         cv::convertMaps(map1.toMat(), map2.toMat(), dstmap1.toMat(), dstmap2.toMat(), dstmap1type, nninterpolation);
         return TensorArray();

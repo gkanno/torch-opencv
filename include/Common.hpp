@@ -15,9 +15,20 @@ class GpuMatT;
 
 #include <iostream>
 
-extern "C" int getIntMax() { return INT_MAX; }
-extern "C" float getFloatMax() { return FLT_MAX; }
-extern "C" double getDblEpsilon() { return DBL_EPSILON; }
+// Common_EXPORTS is defined by CMake(add_library)
+#if defined (_WIN32) && defined (_MSC_VER)
+  #if defined(Common_EXPORTS)
+    #define  Common_API __declspec(dllexport)
+  #else
+    #define  Common_API __declspec(dllimport)
+  #endif /* Common_EXPORTS */
+#else /* defined (_WIN32) */
+ #define Common_API
+#endif
+
+extern "C" Common_API int getIntMax();
+extern "C" Common_API float getFloatMax();
+extern "C" Common_API double getDblEpsilon();
 
 /***************** Tensor <=> Mat conversion *****************/
 
@@ -27,10 +38,10 @@ extern "C" double getDblEpsilon() { return DBL_EPSILON; }
 #define TO_MAT_LIST_OR_NOARRAY(mat) (mat.isNull() ? cv::noArray() : mat.toMatList())
 #define TO_GPUMAT_LIST_OR_NOARRAY(mat) (mat.isNull() ? std::vector<cuda::GpuMat>() : mat.toGpuMatList())
 
-extern "C"
+extern "C" Common_API
 void initAllocator();
 
-class MatT {
+class Common_API MatT {
 public:
     cv::Mat mat;
     // The Tensor that `mat` was created from, or nullptr
@@ -43,7 +54,7 @@ public:
     MatT();
 };
 
-struct TensorWrapper {
+struct Common_API TensorWrapper {
     THByteTensor *tensorPtr;
     char typeCode;
     bool definedInLua;
@@ -72,7 +83,7 @@ struct TensorWrapper {
     bool isNull() { return tensorPtr == nullptr; }
 };
 
-struct TensorArray {
+struct Common_API TensorArray {
     struct TensorWrapper *tensors;
     int size;
 
@@ -108,9 +119,12 @@ std::string typeStr(cv::Mat & mat) {
     }
 }
 
-/***************** Wrappers for small OpenCV classes *****************/
+extern "C" Common_API
+void transfer_tensor(THByteTensor *dst, struct TensorWrapper srcWrapper);
 
-struct SizeWrapper {
+	/***************** Wrappers for small OpenCV classes *****************/
+
+struct Common_API SizeWrapper {
     int width, height;
 
     operator cv::Size() { return cv::Size(width, height); }
@@ -118,7 +132,7 @@ struct SizeWrapper {
     SizeWrapper() {}
 };
 
-struct Size2fWrapper {
+struct Common_API Size2fWrapper {
     float width, height;
 
     operator cv::Size2f() { return cv::Size2f(width, height); }
@@ -126,7 +140,7 @@ struct Size2fWrapper {
     Size2fWrapper(const cv::Size2f & other);
 };
 
-struct TermCriteriaWrapper {
+struct Common_API TermCriteriaWrapper {
     int type, maxCount;
     double epsilon;
 
@@ -136,7 +150,7 @@ struct TermCriteriaWrapper {
     TermCriteriaWrapper(cv::TermCriteria && other);
 };
 
-struct ScalarWrapper {
+struct Common_API ScalarWrapper {
     double v0, v1, v2, v3;
 
     operator cv::Scalar() { return cv::Scalar(v0, v1, v2, v3); }
@@ -149,7 +163,7 @@ struct ScalarWrapper {
     ScalarWrapper() {}
 };
 
-struct Vec2dWrapper {
+struct Common_API Vec2dWrapper {
     double v0, v1;
 
     operator cv::Vec2d() { return cv::Vec2d(v0, v1); }
@@ -159,7 +173,7 @@ struct Vec2dWrapper {
     }
 };
 
-struct Vec3dWrapper {
+struct Common_API Vec3dWrapper {
     double v0, v1, v2;
     
     operator cv::Vec3d() { return cv::Vec3d(v0, v1, v2); }
@@ -168,19 +182,19 @@ struct Vec3dWrapper {
     Vec3dWrapper() {}
 };
 
-struct Vec3fWrapper {
+struct Common_API Vec3fWrapper {
     float v0, v1, v2;
 };
 
-struct Vec3iWrapper {
+struct Common_API Vec3iWrapper {
     int v0, v1, v2;
 };
 
-struct Vec4iWrapper {
+struct Common_API Vec4iWrapper {
     int v0, v1, v2, v3;
 };
 
-struct RectWrapper {
+struct Common_API RectWrapper {
     int x, y, width, height;
 
     operator cv::Rect() { return cv::Rect(x, y, width, height); }
@@ -189,7 +203,7 @@ struct RectWrapper {
     RectWrapper() {}
 };
 
-struct PointWrapper {
+struct Common_API PointWrapper {
     int x, y;
 
     operator cv::Point() { return cv::Point(x, y); }
@@ -198,7 +212,7 @@ struct PointWrapper {
     PointWrapper(const cv::Point & other);
 };
 
-struct Point2fWrapper {
+struct Common_API Point2fWrapper {
     float x, y;
 
     operator cv::Point2f() { return cv::Point2f(x, y); }
@@ -206,7 +220,7 @@ struct Point2fWrapper {
     Point2fWrapper() {}
 };
 
-struct Point2dWrapper {
+struct Common_API Point2dWrapper {
     double x, y;
 
     operator cv::Point2d() { return cv::Point2d(x, y); }
@@ -214,7 +228,7 @@ struct Point2dWrapper {
     Point2dWrapper() {}
 };
 
-struct RotatedRectWrapper {
+struct Common_API RotatedRectWrapper {
     struct Point2fWrapper center;
     struct Size2fWrapper size;
     float angle;
@@ -224,7 +238,7 @@ struct RotatedRectWrapper {
     operator cv::RotatedRect() { return cv::RotatedRect(center, size, angle); }
 };
 
-struct MomentsWrapper {
+struct Common_API MomentsWrapper {
     double m00, m10, m01, m20, m11, m02, m30, m21, m12, m03;
     double mu20, mu11, mu02, mu30, mu21, mu12, mu03;
     double nu20, nu11, nu02, nu30, nu21, nu12, nu03;
@@ -235,19 +249,19 @@ struct MomentsWrapper {
     }
 };
 
-struct RotatedRectPlusRect {
+struct Common_API RotatedRectPlusRect {
     struct RotatedRectWrapper rotrect;
     struct RectWrapper rect;
 };
 
-struct DMatchWrapper {
+struct Common_API DMatchWrapper {
     int queryIdx;
     int trainIdx;
     int imgIdx;
     float distance;
 };
 
-struct DMatchArray {
+struct Common_API DMatchArray {
     int size;
     struct DMatchWrapper *data;
 
@@ -256,7 +270,7 @@ struct DMatchArray {
     operator std::vector<cv::DMatch>();
 };
 
-struct DMatchArrayOfArrays {
+struct Common_API DMatchArrayOfArrays {
     int size;
     struct DMatchArray *data;
 
@@ -265,7 +279,7 @@ struct DMatchArrayOfArrays {
     operator std::vector<std::vector<cv::DMatch>>();
 };
 
-struct KeyPointWrapper {
+struct Common_API KeyPointWrapper {
     struct Point2fWrapper pt;
     float size, angle, response;
     int octave, class_id;
@@ -274,7 +288,7 @@ struct KeyPointWrapper {
     operator cv::KeyPoint() { return cv::KeyPoint(pt, size, angle, response, octave, class_id); }
 };
 
-struct KeyPointArray {
+struct Common_API KeyPointArray {
     struct KeyPointWrapper *data;
     int size;
 
@@ -285,87 +299,87 @@ struct KeyPointArray {
 
 /***************** Helper wrappers for [OpenCV class + some primitive] *****************/
 
-struct TensorPlusDouble {
+struct Common_API TensorPlusDouble {
     struct TensorWrapper tensor;
     double val;
 };
 
-struct TensorPlusFloat {
+struct Common_API TensorPlusFloat {
     struct TensorWrapper tensor;
     float val;
 };
 
-struct TensorPlusInt {
+struct Common_API TensorPlusInt {
     struct TensorWrapper tensor;
     int val;
 };
 
-struct TensorPlusBool {
+struct Common_API TensorPlusBool {
     struct TensorWrapper tensor;
     bool val;
 };
 
-struct TensorPlusRect {
+struct Common_API TensorPlusRect {
     struct TensorWrapper tensor;
     struct RectWrapper rect;
 };
 
-struct TensorPlusPoint {
+struct Common_API TensorPlusPoint {
     struct TensorWrapper tensor;
     struct PointWrapper point;
 };
 
-struct TensorArrayPlusFloat {
+struct Common_API TensorArrayPlusFloat {
     struct TensorArray tensors;
     float val;
 };
 
-struct TensorArrayPlusDouble {
+struct Common_API TensorArrayPlusDouble {
     struct TensorArray tensors;
     double val;
 };
 
-struct TensorArrayPlusInt {
+struct Common_API TensorArrayPlusInt {
     struct TensorArray tensors;
     int val;
 };
 
-struct TensorArrayPlusBool {
+struct Common_API TensorArrayPlusBool {
     struct TensorArray tensors;
     bool val;
 };
 
-struct TensorArrayPlusVec3d {
+struct Common_API TensorArrayPlusVec3d {
     struct TensorArray tensors;
     struct Vec3dWrapper vec3d;
 };
 
-struct TensorArrayPlusRect {
+struct Common_API TensorArrayPlusRect {
     struct TensorArray tensors;
     struct RectWrapper rect;
 };
 
-struct RectPlusInt {
+struct Common_API RectPlusInt {
     struct RectWrapper rect;
     int val;
 };
 
-struct RectPlusBool {
+struct Common_API RectPlusBool {
     struct RectWrapper rect;
     bool val;
 };
 
-struct ScalarPlusBool {
+struct Common_API ScalarPlusBool {
     struct ScalarWrapper scalar;
     bool val;
 };
 
-struct SizePlusInt {
+struct Common_API SizePlusInt {
     struct SizeWrapper size;
     int val;
 };
 
-struct Point2fPlusInt {
+struct Common_API Point2fPlusInt {
     struct Point2fWrapper point;
     int val;
 };
@@ -374,7 +388,7 @@ struct Point2fPlusInt {
 
 // Arrays
 
-struct StringArray {
+struct Common_API StringArray {
     char **data;
     int size;
 
@@ -385,7 +399,7 @@ struct StringArray {
     operator std::vector<cv::String>();
 };
 
-struct UCharArray {
+struct Common_API UCharArray {
     unsigned char *data;
     int size;
 
@@ -393,7 +407,7 @@ struct UCharArray {
     UCharArray(const std::vector<unsigned char> vec);
 };
 
-struct FloatArray {
+struct Common_API FloatArray {
     float *data;
     int size;
 
@@ -401,7 +415,7 @@ struct FloatArray {
     FloatArray(const std::vector<float> vec);
 };
 
-struct DoubleArray {
+struct Common_API DoubleArray {
     double *data;
     int size;
 
@@ -409,7 +423,7 @@ struct DoubleArray {
     DoubleArray(const std::vector<double> vec);
 };
 
-struct PointArray {
+struct Common_API PointArray {
     struct PointWrapper *data;
     int size;
 
@@ -418,7 +432,7 @@ struct PointArray {
     operator std::vector<cv::Point>();
 };
 
-struct RectArray {
+struct Common_API RectArray {
     struct RectWrapper *data;
     int size;
 
@@ -427,50 +441,50 @@ struct RectArray {
     operator std::vector<cv::Rect>();
 };
 
-struct SizeArray {
+struct Common_API SizeArray {
     struct SizeWrapper *data;
     int size;
 
     operator std::vector<cv::Size>();
 };
 
-struct TensorPlusRectArray {
+struct Common_API TensorPlusRectArray {
     struct TensorWrapper tensor;
     struct RectArray rects;
 
     TensorPlusRectArray() {}
 };
 
-struct TensorArrayPlusRectArray {
+struct Common_API TensorArrayPlusRectArray {
     struct TensorArray tensors;
     struct RectArray rects;
 };
 
-struct TensorArrayPlusRectArrayPlusFloat {
+struct Common_API TensorArrayPlusRectArrayPlusFloat {
     struct TensorArray tensors;
     struct RectArray rects;
     float val;
 };
 
-struct TensorPlusPointArray {
+struct Common_API TensorPlusPointArray {
     struct TensorWrapper tensor;
     struct PointArray points;
 };
 
-struct TensorPlusKeyPointArray {
+struct Common_API TensorPlusKeyPointArray {
     struct TensorWrapper tensor;
     struct KeyPointArray keypoints;
 };
 
 // Arrays of arrays
 
-struct FloatArrayOfArrays {
+struct Common_API FloatArrayOfArrays {
     float **pointers;
     float *realData;
     int dims;
 };
 
-struct PointArrayOfArrays {
+struct Common_API PointArrayOfArrays {
     struct PointWrapper **pointers;
     struct PointWrapper *realData;
     int dims;
@@ -479,8 +493,8 @@ struct PointArrayOfArrays {
 
 /***************** Helper functions *****************/
 
-std::vector<MatT> get_vec_MatT(std::vector<cv::Mat> vec_mat);
+Common_API std::vector<MatT> get_vec_MatT(std::vector<cv::Mat> vec_mat);
 
-std::vector<cv::UMat> get_vec_UMat(std::vector<cv::Mat> vec_mat);
+Common_API std::vector<cv::UMat> get_vec_UMat(std::vector<cv::Mat> vec_mat);
 
-std::vector<cv::Mat> get_vec_Mat(std::vector<cv::UMat> vec_umat);
+Common_API std::vector<cv::Mat> get_vec_Mat(std::vector<cv::UMat> vec_umat);

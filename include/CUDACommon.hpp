@@ -1,13 +1,24 @@
 #include <Common.hpp>
 #include <opencv2/cudalegacy/NCV.hpp>
 
+// CUDACommon_EXPORTS is defined by CMake(add_library)
+#if defined (_WIN32) && defined (_MSC_VER)
+  #if defined(CUDACommon_EXPORTS)
+    #define  CUDACommon_API __declspec(dllexport)
+  #else
+    #define  CUDACommon_API __declspec(dllimport)
+  #endif /* CUDACommon_EXPORTS */
+#else /* defined (_WIN32) */
+ #define CUDACommon_API
+#endif
+
 namespace cuda = cv::cuda;
 
 #define CV_CUDA 66
 
 // Kill "destination" and assign "source" data to it.
 // "destination" is always supposed to be an empty Tensor
-extern "C"
+extern "C" CUDACommon_API
 void transfer_tensor_CUDA(THCState *state, THCudaTensor *dst, struct TensorWrapper srcWrapper);
 
 struct cutorchInfo {
@@ -25,12 +36,12 @@ public:
     void free(cuda::GpuMat* mat);
 };
 
-extern "C"
+extern "C" CUDACommon_API
 void initAllocatorCUDA(cutorchInfo info);
 
 /****************************************** GpuMatT ********************************************/
 
-class GpuMatT {
+class CUDACommon_API GpuMatT {
 public:
     cuda::GpuMat mat;
     // The Tensor that `mat` was created from, or nullptr
@@ -176,4 +187,4 @@ public:
 FakeStream fakeStream;
 
 // Here is the function that updates and returns it:
-cuda::Stream & prepareStream(cutorchInfo info);
+CUDACommon_API cuda::Stream & prepareStream(cutorchInfo info);

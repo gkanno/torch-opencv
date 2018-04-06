@@ -1,6 +1,17 @@
 #include <Common.hpp>
 #include <opencv2/flann.hpp>
 
+// flann_EXPORTS is defined by CMake(add_library)
+#if defined (_WIN32) && defined (_MSC_VER)
+  #if defined(flann_EXPORTS)
+    #define  flann_API __declspec(dllexport)
+  #else
+    #define  flann_API __declspec(dllimport)
+  #endif /* flann_EXPORTS */
+#else /* defined (_WIN32) */
+ #define flann_API
+#endif
+
 namespace flann = cv::flann;
 
 struct IndexPtr {
@@ -84,80 +95,80 @@ struct SearchParamsPtr {
     inline operator const flann::SearchParams &() { return *static_cast<const flann::SearchParams *>(ptr); }
 };
 
-extern "C"
+extern "C" flann_API
 void IndexParams_dtor(struct IndexParamsPtr ptr);
 
-extern "C"
+extern "C" flann_API
 struct KDTreeIndexParamsPtr KDTreeIndexParams_ctor(int trees);
 
-extern "C"
+extern "C" flann_API
 struct LinearIndexParamsPtr LinearIndexParams_ctor();
 
-extern "C"
+extern "C" flann_API
 struct CompositeIndexParamsPtr CompositeIndexParams_ctor(
         int trees, int branching, int iterations,
         cvflann::flann_centers_init_t centers_init, float cb_index);
 
-extern "C"
+extern "C" flann_API
 struct AutotunedIndexParamsPtr AutotunedIndexParams_ctor(
         float target_precision, float build_weight,
         float memory_weight, float sample_fraction);
 
-extern "C"
+extern "C" flann_API
 struct HierarchicalClusteringIndexParamsPtr HierarchicalClusteringIndexParams_ctor(
         int branching, cvflann::flann_centers_init_t centers_init, int trees, int leaf_size);
 
-extern "C"
+extern "C" flann_API
 struct KMeansIndexParamsPtr KMeansIndexParams_ctor(
         int branching, int iterations, cvflann::flann_centers_init_t centers_init, float cb_index);
 
-extern "C"
+extern "C" flann_API
 struct LshIndexParamsPtr LshIndexParams_ctor(
         int table_number, int key_size, int multi_probe_level);
 
-extern "C"
+extern "C" flann_API
 struct SavedIndexParamsPtr SavedIndexParams_ctor(const char *filename);
 
-extern "C"
+extern "C" flann_API
 struct SearchParamsPtr SearchParams_ctor(int checks, float eps, bool sorted);
 
-extern "C"
+extern "C" flann_API
 struct IndexPtr Index_ctor_default();
 
-extern "C"
+extern "C" flann_API
 struct IndexPtr Index_ctor(
         struct TensorWrapper features, struct IndexParamsPtr params,
         cvflann::flann_distance_t distType);
 
-extern "C"
+extern "C" flann_API
 void Index_dtor(struct IndexPtr ptr);
 
-extern "C"
+extern "C" flann_API
 void Index_build(
         struct IndexPtr ptr, struct TensorWrapper features,
         struct IndexParamsPtr params, cvflann::flann_distance_t distType);
 
-extern "C"
+extern "C" flann_API
 struct TensorArray Index_knnSearch(
         struct IndexPtr ptr, struct TensorWrapper query, int knn, struct TensorWrapper indices,
         struct TensorWrapper dists, struct SearchParamsPtr params);
 
-extern "C"
+extern "C" flann_API
 struct TensorArrayPlusInt Index_radiusSearch(
         struct IndexPtr ptr, struct TensorWrapper query, double radius, int maxResults,
         struct TensorWrapper indices, struct TensorWrapper dists, struct SearchParamsPtr params);
 
-extern "C"
+extern "C" flann_API
 void Index_save(struct IndexPtr ptr, const char *filename);
 
-extern "C"
+extern "C" flann_API
 bool Index_load(struct IndexPtr ptr, struct TensorWrapper features, const char *filename);
 
-extern "C"
+extern "C" flann_API
 void Index_release(struct IndexPtr ptr);
 
-extern "C"
+extern "C" flann_API
 int Index_getDistance(struct IndexPtr ptr);
 
-extern "C"
+extern "C" flann_API
 int Index_getAlgorithm(struct IndexPtr ptr);
