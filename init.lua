@@ -411,7 +411,7 @@ function cv.wrap_tensors(...)
 
     local wrapper = ffi.new("struct TensorArray")
     wrapper.size = #args
-    wrapper.tensors = ffi.gc(C.malloc(#args * ffi.sizeof("struct TensorWrapper")), C.free)
+    wrapper.tensors = ffi.gc(ffi.C.malloc(#args * ffi.sizeof("struct TensorWrapper")), ffi.C.free)
 
     for i, tensor in ipairs(args) do
         wrapper.tensors[i-1] = cv.wrap_tensor(tensor)
@@ -451,7 +451,7 @@ function cv.unwrap_tensors(wrapper, toTable)
             table.insert(retval, tempTensor)
         end
 
-        C.free(wrapper.tensors)
+        ffi.C.free(wrapper.tensors)
         if toTable then
             return retval
         else
@@ -567,7 +567,7 @@ function cv.newArray(elemType, data)
         -- create class array
         local retval = ffi.new('struct ClassArray')
 
-        retval.data = ffi.gc(C.malloc(#data * ffi.sizeof('struct PtrWrapper')), C.free)
+        retval.data = ffi.gc(ffi.C.malloc(#data * ffi.sizeof('struct PtrWrapper')), ffi.C.free)
         retval.size = #data
 
         for i, value in ipairs(data) do
@@ -594,18 +594,18 @@ function cv.newArray(elemType, data)
     if not data then
         -- create an array with no data
         -- here, we assume that our C function will resize the array
-        retval.data = ffi.gc(cv.NULLPTR, C.free)
+        retval.data = ffi.gc(cv.NULLPTR, ffi.C.free)
         retval.size = 0
         return retval
     end
 
     if type(data) == 'number' then
-        retval.data = ffi.gc(C.malloc(data * ffi.sizeof(fullTypeName)), C.free)
+        retval.data = ffi.gc(ffi.C.malloc(data * ffi.sizeof(fullTypeName)), ffi.C.free)
         retval.size = data
         return retval
     end
 
-    retval.data = ffi.gc(C.malloc(#data * ffi.sizeof(fullTypeName)), C.free)
+    retval.data = ffi.gc(ffi.C.malloc(#data * ffi.sizeof(fullTypeName)), ffi.C.free)
     retval.size = #data
 
 
@@ -628,13 +628,13 @@ function cv.numberArrayOfArrays(elemType, data)
     local retval = ffi.new('struct ' .. elemType .. 'ArrayOfArrays')
 
     -- first, compute relative addresses
-    retval.pointers = ffi.gc(C.malloc(#data * ffi.sizeof(elemType:lower() .. '*') + 1), C.free)
+    retval.pointers = ffi.gc(ffi.C.malloc(#data * ffi.sizeof(elemType:lower() .. '*') + 1), ffi.C.free)
     retval.pointers[0] = nil
 
     for i, row in ipairs(data) do
         data[i] = data[i-1] + #row
     end
-    retval.realData = ffi.gc(C.malloc(totalElemSize * ffi.sizeof(elemType:lower())), C.free)
+    retval.realData = ffi.gc(ffi.C.malloc(totalElemSize * ffi.sizeof(elemType:lower())), ffi.C.free)
 
     retval.pointers[0] = retval.realData
     local counter = 0
@@ -658,7 +658,7 @@ function cv.arrayToLua(array, outputType, output)
             output[i] = array.data[i-1]
         end
 
-        C.free(array.data)
+        ffi.C.free(array.data)
         return output
     end
 
@@ -676,7 +676,7 @@ function cv.arrayToLua(array, outputType, output)
         retval[i] = array.data[i-1]
     end
 
-    C.free(array.data)
+    ffi.C.free(array.data)
     return retval
 end
 
@@ -684,8 +684,8 @@ function cv.tableToDMatchArrayOfArrays(tbl)
     local result = ffi.new('struct DMatchArrayOfArrays')
     result.size = #tbl
     result.data = ffi.gc(
-        C.malloc(#tbl * ffi.sizeof('struct DMatchArray')),
-        C.free)
+        ffi.C.malloc(#tbl * ffi.sizeof('struct DMatchArray')),
+        ffi.C.free)
     for i = 1, #tbl do
         result.data[i-1] = tbl[i]
     end
@@ -693,16 +693,16 @@ end
 
 -- make an array that has come from C++ garbage-collected
 function cv.gcarray(array)
-    array.data = ffi.gc(array.data, C.free)
+    array.data = ffi.gc(array.data, ffi.C.free)
     return array
 end
 
 function cv.unwrap_strings(array)
-    array.data = ffi.gc(array.data, C.free)
+    array.data = ffi.gc(array.data, ffi.C.free)
 
     local string_array = {}
     for i = 1,array.size do
-        array.data[i-1].str = ffi.gc(array.data[i-1].str, C.free)
+        array.data[i-1].str = ffi.gc(array.data[i-1].str, ffi.C.free)
         string_array[i] = ffi.string(array.data[i-1].str)
     end
 
