@@ -2,7 +2,7 @@ package = "cv"
 version = "scm-1"
 
 source = {
-   url = "git://github.com/VisionLabs/torch-opencv",
+   url = "git://github.com/gkanno/torch-opencv",
    tag = "master"
 }
 
@@ -11,7 +11,7 @@ description = {
    detailed = [[
    	    OpenCV bindings for LuaJIT+Torch
    ]],
-   homepage = "https://github.com/VisionLabs/torch-opencv",
+   homepage = "https://github.com/gkanno/torch-opencv",
    license = "MIT"
 }
 
