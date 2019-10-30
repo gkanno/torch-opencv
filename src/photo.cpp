@@ -91,7 +91,7 @@ extern "C" struct TensorWrapper seamlessClone(struct TensorWrapper src, struct T
                                     struct TensorWrapper blend, int flags)
 {
     MatT blend_mat = blend.toMatT();
-    cv::seamlessClone(src.toMat(), blend_mat, mask.toMat(), p, blend.toMat(), flags);
+    cv::seamlessClone(src.toMat(), dst.toMat(), mask.toMat(), p, blend_mat, flags);
     return TensorWrapper(blend_mat);
 }
 
