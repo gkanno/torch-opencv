@@ -3,7 +3,7 @@ version = "scm-1"
 
 source = {
    url = "git://github.com/gkanno/torch-opencv",
-   tag = "master"
+   tag = "seamlessClone_fix"
 }
 
 description = {
